@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="view_coroutine_scope" translatable="false">view_coroutine_scope</string>
+</resources>

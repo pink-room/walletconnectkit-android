@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">WalletConnectKit</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="connected_with">Connected with: %s</string>
+    <string name="to_address_hint">Address (0xAAA...AAA)</string>
+    <string name="transaction_value_hint">Value (0.01 ETH)</string>
+    <string name="perform_transaction">Perform Transaction</string>
+</resources>

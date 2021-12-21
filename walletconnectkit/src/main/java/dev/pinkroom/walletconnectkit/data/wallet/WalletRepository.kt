@@ -9,6 +9,8 @@ import dev.pinkroom.walletconnectkit.common.toWei
 import dev.pinkroom.walletconnectkit.data.session.SessionRepository
 import kotlinx.coroutines.withContext
 import org.walletconnect.Session
+import kotlin.coroutines.Continuation
+import kotlin.coroutines.suspendCoroutine
 
 internal class WalletRepository(
     private val walletConnectKitConfig: WalletConnectKitConfig,
@@ -35,26 +37,27 @@ internal class WalletRepository(
         nonce: String?,
         gasPrice: String?,
         gasLimit: String?,
-        transactionResponse: TransactionResponse
-    ) {
-        withContext(dispatchers.io) {
-            sessionRepository.address?.let {
-                sessionRepository.session?.let { session ->
-                    val id = System.currentTimeMillis()
-                    session.performMethodCall(
-                        Session.MethodCall.SendTransaction(
-                            id,
-                            it,
-                            address,
-                            nonce,
-                            gasPrice,
-                            gasLimit,
-                            value.toWei().toHex(),
-                            data ?: ""
-                        )
-                    ) { response -> transactionResponse(id, response) }
-                    openWallet()
-                }
+    ): Session.MethodCall.Response {
+        return withContext(dispatchers.io) {
+            suspendCoroutine { continuation ->
+                sessionRepository.address?.let { fromAddress ->
+                    sessionRepository.session?.let { session ->
+                        val id = System.currentTimeMillis()
+                        session.performMethodCall(
+                            Session.MethodCall.SendTransaction(
+                                id,
+                                fromAddress,
+                                address,
+                                nonce,
+                                gasPrice,
+                                gasLimit,
+                                value.toWei().toHex(),
+                                data ?: ""
+                            )
+                        ) { response -> onPerformTransactionResponse(id, response, continuation) }
+                        openWallet()
+                    } ?: continuation.resumeWith(Result.failure(Throwable("Session not found!")))
+                } ?: continuation.resumeWith(Result.failure(Throwable("Address not found!")))
             }
         }
     }
@@ -65,6 +68,20 @@ internal class WalletRepository(
         nonce: String?,
         gasPrice: String?,
         gasLimit: String?,
-        transactionResponse: TransactionResponse
-    ) = performTransaction(address, value, null, nonce, gasLimit, gasLimit, transactionResponse)
+    ) = performTransaction(address, value, null, nonce, gasLimit, gasLimit)
+
+    private fun onPerformTransactionResponse(
+        id: Long,
+        response: Session.MethodCall.Response,
+        continuation: Continuation<Session.MethodCall.Response>
+    ) {
+        if (id != response.id) {
+            val throwable = Throwable("The response id is different from the transaction id!")
+            continuation.resumeWith(Result.failure(throwable))
+            return
+        }
+        response.error?.let {
+            continuation.resumeWith(Result.failure(Throwable(it.message)))
+        } ?: continuation.resumeWith(Result.success(response))
+    }
 }

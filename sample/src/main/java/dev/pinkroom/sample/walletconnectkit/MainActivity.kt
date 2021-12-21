@@ -67,11 +67,9 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
             val toAddress = toAddressView.text.toString()
             val value = valueView.text.toString()
             lifecycleScope.launch {
-                walletConnectKit.performTransaction(toAddress, value) { id, response ->
-                    if (id != response.id) return@performTransaction
-                    response.error?.let { showMessage(it.message) }
-                        ?: showMessage("Transaction done!")
-                }
+                runCatching { walletConnectKit.performTransaction(toAddress, value) }
+                    .onSuccess { showMessage("Transaction done!") }
+                    .onFailure { showMessage(it.message ?: it.toString()) }
             }
         }
     }

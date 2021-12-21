@@ -2,8 +2,6 @@ package dev.pinkroom.walletconnectkit.data.wallet
 
 import org.walletconnect.Session
 
-typealias TransactionResponse = (id: Long, Session.MethodCall.Response) -> Unit
-
 interface WalletManager {
     fun openWallet()
     fun requestHandshake()
@@ -15,8 +13,7 @@ interface WalletManager {
         nonce: String? = null,
         gasPrice: String? = null,
         gasLimit: String? = null,
-        transactionResponse: TransactionResponse
-    )
+    ): Session.MethodCall.Response
 
     suspend fun performTransaction(
         address: String,
@@ -24,6 +21,5 @@ interface WalletManager {
         nonce: String? = null,
         gasPrice: String? = null,
         gasLimit: String? = null,
-        transactionResponse: TransactionResponse
-    )
+    ): Session.MethodCall.Response
 }

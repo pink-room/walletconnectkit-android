@@ -171,11 +171,6 @@ Below are the most relevant methods provided by the `WalletConnectKit` that you 
 </tr>
 
 <tr>
-<td><b>wcUri</b></td>
-<td>Returns the URI needed to perform the session handshake with the Wallet.</td>
-</tr>
-
-<tr>
 <td><b>requestHandshake()</b></td>
 <td>Starts an intent that performs the handshake between your DApp and a Wallet.</td>
 </tr>

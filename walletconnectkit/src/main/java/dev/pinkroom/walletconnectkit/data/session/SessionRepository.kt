@@ -19,7 +19,7 @@ internal class SessionRepository(
     override var session: Session? = null
 
     override val address get() = session?.approvedAccounts()?.firstOrNull()
-    override val wcUri get() = config.toWCUri()
+    internal val wcUri get() = config.toWCUri()
 
 
     override fun createSession(callback: Session.Callback) {

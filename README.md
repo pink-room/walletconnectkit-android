@@ -35,7 +35,7 @@ library for Kotlin is stable, we will support the v2 protocol.
     }
 
     dependencies {
-        implementation 'dev.pinkroom:walletconnectkit:<last_version>'
+        implementation 'dev.pinkroom:walletconnectkit-android:<last_version>'
     }
 ```
 

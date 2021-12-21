@@ -1,7 +1,6 @@
 # WalletConnectKit
 
-[![Release](https://jitpack.io/v/pink-room/walletconnectkit-android.svg)]
-(https://jitpack.io/#pink-room/walletconnectkit-android)
+[![Release](https://jitpack.io/v/pink-room/walletconnectkit-android.svg)](https://jitpack.io/#pink-room/walletconnectkit-android)
 
 `WalletConnectKit` is the Swiss Army toolkit for `WalletConnect`! It will allow you to connect your
 DApp with an Ethereum Wallet in a few minutes and start performing transactions right away.

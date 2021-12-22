@@ -7,6 +7,7 @@
         <entry key="sample/src/main/res/layout/activity_main.xml" value="0.335" />
         <entry key="sample/src/main/res/menu/toolbar_menu.xml" value="0.1" />
         <entry key="walletconnectkit/src/main/res/drawable/button_walletconnect_background.xml" value="0.16510416666666666" />
+        <entry key="walletconnectkit/src/main/res/drawable/ic_walletconnect.xml" value="0.2984375" />
       </map>
     </option>
   </component>

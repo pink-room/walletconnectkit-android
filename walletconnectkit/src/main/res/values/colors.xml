@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="walletconnect">#3999fb</color>
+    <color name="walletconnect_text">#3999FB</color>
+    <color name="walletconnect_icon">#3B99FC</color>
 </resources>

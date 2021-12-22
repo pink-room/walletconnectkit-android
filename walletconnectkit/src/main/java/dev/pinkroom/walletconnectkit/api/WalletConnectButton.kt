@@ -68,7 +68,7 @@ class WalletConnectButton @JvmOverloads constructor(
     private fun initSrc(attrs: AttributeSet?) {
         val typedArray = context.obtainStyledAttributes(attrs, intArrayOf(android.R.attr.src))
         val src = typedArray.getResourceId(0, -1)
-        if (src == -1) setImageResource(R.drawable.walletconnect)
+        if (src == -1) setImageResource(R.drawable.ic_walletconnect)
         typedArray.recycle()
     }
 

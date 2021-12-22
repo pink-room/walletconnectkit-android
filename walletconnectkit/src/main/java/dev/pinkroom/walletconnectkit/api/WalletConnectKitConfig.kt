@@ -6,7 +6,7 @@ import org.walletconnect.Session
 
 class WalletConnectKitConfig(
     val context: Context,
-    val relayUrl: String,
+    val bridgeUrl: String,
     private val appUrl: String,
     private val appName: String,
     private val appDescription: String,

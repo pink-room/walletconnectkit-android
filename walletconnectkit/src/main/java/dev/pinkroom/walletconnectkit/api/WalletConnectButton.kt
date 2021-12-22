@@ -17,10 +17,6 @@ class WalletConnectButton @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : AppCompatImageButton(context, attrs, defStyleAttr), Session.Callback {
 
-    /*private val viewModel by lazy {
-        ViewModelProvider(findViewTreeViewModelStoreOwner()!!)[WalletConnectButtonViewModel::class.java]
-    }*/
-
     private lateinit var walletConnectKit: WalletConnectKit
     private lateinit var approvedAddress: (address: String) -> Unit
     var sessionCallback: Session.Callback? = null

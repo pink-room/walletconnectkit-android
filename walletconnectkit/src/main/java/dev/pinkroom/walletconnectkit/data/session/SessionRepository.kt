@@ -62,7 +62,7 @@ internal class SessionRepository(
     private fun buildConfig(): Session.Config {
         val handshakeTopic = UUID.randomUUID().toString()
         val key = ByteArray(32).also { Random().nextBytes(it) }.toNoPrefixHexString()
-        return Session.Config(handshakeTopic, walletConnectKitConfig.relayUrl, key, "wc", 1)
+        return Session.Config(handshakeTopic, walletConnectKitConfig.bridgeUrl, key, "wc", 1)
     }
 
     private fun buildSession() = WCSession(

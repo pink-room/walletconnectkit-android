@@ -19,7 +19,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     private val config by lazy {
         WalletConnectKitConfig(
             context = this,
-            relayUrl = "wss://bridge.aktionariat.com:8887",
+            bridgeUrl = "wss://bridge.aktionariat.com:8887",
             appUrl = "walletconnectkit.com",
             appName = "WalletConnect Kit",
             appDescription = "This is the Swiss Army toolkit for WalletConnect!"

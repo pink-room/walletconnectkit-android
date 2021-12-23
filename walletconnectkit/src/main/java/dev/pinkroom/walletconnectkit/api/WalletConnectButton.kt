@@ -30,11 +30,8 @@ class WalletConnectButton @JvmOverloads constructor(
     fun start(walletConnectKit: WalletConnectKit, approvedAddress: (address: String) -> Unit) {
         this.walletConnectKit = walletConnectKit
         this.approvedAddress = approvedAddress
-        if (walletConnectKit.isSessionStored) {
-            walletConnectKit.loadSession(this)
-            walletConnectKit.address?.let(approvedAddress)
-        }
-        setOnClickListener { walletConnectKit.createSession(this) }
+        initInputListener(walletConnectKit)
+        loadSessionIfStored(walletConnectKit, approvedAddress)
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -76,13 +73,33 @@ class WalletConnectButton @JvmOverloads constructor(
     }
 
     private fun initBackground(attrs: AttributeSet?) {
-        val typedArray = context.obtainStyledAttributes(attrs, intArrayOf(android.R.attr.background))
+        val typedArray =
+            context.obtainStyledAttributes(attrs, intArrayOf(android.R.attr.background))
         val drawable = typedArray.getDrawable(0)
         if (drawable == null) {
             setBackgroundResource(R.drawable.button_walletconnect_background)
             scaleType = ScaleType.FIT_CENTER
         }
         typedArray.recycle()
+    }
+
+    private fun initInputListener(walletConnectKit: WalletConnectKit) {
+        setOnClickListener {
+            if (walletConnectKit.isSessionStored) {
+                walletConnectKit.removeSession()
+            }
+            walletConnectKit.createSession(this)
+        }
+    }
+
+    private fun loadSessionIfStored(
+        walletConnectKit: WalletConnectKit,
+        approvedAddress: (address: String) -> Unit
+    ) {
+        if (walletConnectKit.isSessionStored) {
+            walletConnectKit.loadSession(this)
+            walletConnectKit.address?.let(approvedAddress)
+        }
     }
 
     private fun onSessionApproved() {

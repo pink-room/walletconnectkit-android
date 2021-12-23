@@ -35,7 +35,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        if (walletConnectKit.isSessionStored) {
+        walletConnectKit.address?.let {
             menuInflater.inflate(R.menu.toolbar_menu, menu)
         }
         return super.onCreateOptionsMenu(menu)

@@ -34,8 +34,22 @@ android {
         jvmTarget = '1.8'
     }
 
+    sourceSets {
+        String sharedTestDir = 'src/sharedTest/java'
+        test {
+            java.srcDir sharedTestDir
+        }
+        androidTest {
+            java.srcDir sharedTestDir
+        }
+    }
+
     configurations {
         all*.exclude module: 'bcprov-jdk15on'
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
     }
 }
 
@@ -52,14 +66,17 @@ dependencies {
     api 'com.github.walletconnect:kotlin-walletconnect-lib:0.9.8'
     implementation 'com.github.komputing:khex:1.1.2'
     // Web3
-    implementation 'org.web3j:utils:4.8.7-android'
+    implementation 'org.web3j:utils:5.0.0'
     // JSON
-    implementation 'com.squareup.moshi:moshi-adapters:1.12.0'
-    implementation 'com.squareup.moshi:moshi-kotlin:1.12.0'
+    implementation 'com.squareup.moshi:moshi-adapters:1.13.0'
+    implementation 'com.squareup.moshi:moshi-kotlin:1.13.0'
     // Http
     implementation 'com.squareup.okhttp3:okhttp:5.0.0-alpha.3'
     // Tests
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
+    testImplementation 'org.mockito:mockito-inline:4.1.0'
+    testImplementation 'com.github.javafaker:javafaker:1.0.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }

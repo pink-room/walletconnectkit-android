@@ -57,7 +57,7 @@ internal class SessionRepository(
     }
 
     override val isSessionStored
-        get() = storage.list().firstOrNull()?.approvedAccounts?.firstOrNull() != null
+        get() = storage.list().firstOrNull() != null
 
     private fun buildConfig(): Session.Config {
         val handshakeTopic = UUID.randomUUID().toString()

@@ -1,6 +1,6 @@
 # WalletConnectKit
 
-[![Release](https://jitpack.io/v/pink-room/walletconnectkit-android.svg)](https://jitpack.io/#pink-room/walletconnectkit-android)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/dev.pinkroom/walletconnectkit/badge.svg)](https://maven-badges.herokuapp.com/maven-central/dev.pinkroom/walletconnectkit)
 ![Status](https://github.com/pink-room/walletconnectkit-android/actions/workflows/android.yml/badge.svg)
 
 `WalletConnectKit` is the Swiss Army toolkit for `WalletConnect`! It will allow you to connect your
@@ -30,13 +30,8 @@ library for Kotlin is stable, we will support the v2 protocol.
 ## Installation
 
 ``` groovy
-    repositories {
-        // ...
-        maven { url 'https://jitpack.io' }
-    }
-
     dependencies {
-        implementation 'dev.pinkroom:walletconnectkit:<last_version>'
+        implementation 'dev.pinkroom:walletconnectkit:<latest_version>'
     }
 ```
 

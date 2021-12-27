@@ -7,7 +7,7 @@
 DApp with an Ethereum Wallet in a few minutes and start performing transactions right away.
 
 **Note:** Currently, we only support the v1 protocol of `WalletConnect`, since it is the protocol
-most implemented by Wallets. As soon as Wallets implement the v2 protocol and the`WalletConnect`
+that most Wallets implement. As soon as Wallets implement the v2 protocol and the`WalletConnect`
 library for Kotlin is stable, we will support the v2 protocol.
 
 -------
@@ -71,7 +71,7 @@ Add the `WalletConnectButton` to your layout:
     android:layout_height="wrap_content" />
 ```
 
-Start the button with the `WalletConnectKit` instance created before. When the account is
+Start the button with the previously created `WalletConnectKit` instance. When the account is
 successfully connected you will receive the account address.
 
 ```kotlin

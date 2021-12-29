@@ -54,12 +54,20 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun initLoginView() = with(binding) {
-        loginView.start(walletConnectKit) {
-            loginView.visibility = View.GONE
-            connectedView.visibility = View.VISIBLE
-            connectedAddressView.text = getString(R.string.connected_with, it)
-            invalidateOptionsMenu()
-        }
+        loginView.start(walletConnectKit, ::onConnected, ::onDisconnected)
+    }
+
+    private fun onConnected(address: String) = with(binding) {
+        loginView.visibility = View.GONE
+        connectedView.visibility = View.VISIBLE
+        connectedAddressView.text = getString(R.string.connected_with, address)
+        invalidateOptionsMenu()
+    }
+
+    private fun onDisconnected() = with(binding) {
+        loginView.visibility = View.VISIBLE
+        connectedView.visibility = View.GONE
+        invalidateOptionsMenu()
     }
 
     private fun initPerformTransactionView() = with(binding) {
@@ -76,11 +84,6 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private fun onDisconnectClicked() {
         walletConnectKit.removeSession()
-        with(binding) {
-            loginView.visibility = View.VISIBLE
-            connectedView.visibility = View.GONE
-        }
-        invalidateOptionsMenu()
     }
 
     private fun showMessage(message: String) {

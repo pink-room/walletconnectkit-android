@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.appcompat.widget.AppCompatImageButton
 import androidx.core.view.setPadding
+import dev.pinkroom.walletconnectkit.common.canBeIgnored
 import dev.pinkroom.walletconnectkit.common.px
 import dev.pinkroom.walletconnectkit.common.viewScope
 import kotlinx.coroutines.launch
@@ -18,7 +19,8 @@ class WalletConnectButton @JvmOverloads constructor(
 ) : AppCompatImageButton(context, attrs, defStyleAttr), Session.Callback {
 
     private lateinit var walletConnectKit: WalletConnectKit
-    private lateinit var approvedAddress: (address: String) -> Unit
+    private lateinit var onConnected: (address: String) -> Unit
+    private var onDisconnected: (() -> Unit)? = null
     var sessionCallback: Session.Callback? = null
 
     init {
@@ -27,12 +29,20 @@ class WalletConnectButton @JvmOverloads constructor(
         initBackground(attrs)
     }
 
-    fun start(walletConnectKit: WalletConnectKit, approvedAddress: (address: String) -> Unit) {
+    fun start(
+        walletConnectKit: WalletConnectKit,
+        onConnected: (address: String) -> Unit,
+        onDisconnected: (() -> Unit)?
+    ) {
         this.walletConnectKit = walletConnectKit
-        this.approvedAddress = approvedAddress
+        this.onDisconnected = onDisconnected
+        this.onConnected = onConnected
         initInputListener(walletConnectKit)
-        loadSessionIfStored(walletConnectKit, approvedAddress)
+        loadSessionIfStored(walletConnectKit, onConnected)
     }
+
+    fun start(walletConnectKit: WalletConnectKit, onConnected: (address: String) -> Unit) =
+        start(walletConnectKit, onConnected, null)
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         var width = MeasureSpec.makeMeasureSpec(layoutParams.width, MeasureSpec.EXACTLY)
@@ -48,8 +58,12 @@ class WalletConnectButton @JvmOverloads constructor(
 
     override fun onStatus(status: Session.Status) {
         viewScope.launch {
-            if (status is Session.Status.Approved) onSessionApproved()
-            else if (status is Session.Status.Connected) onSessionConnected()
+            when (status) {
+                is Session.Status.Approved -> onSessionApproved()
+                is Session.Status.Connected -> onSessionConnected()
+                is Session.Status.Closed -> onSessionDisconnected()
+                else -> canBeIgnored
+            }
             sessionCallback?.onStatus(status)
         }
     }
@@ -94,19 +108,23 @@ class WalletConnectButton @JvmOverloads constructor(
 
     private fun loadSessionIfStored(
         walletConnectKit: WalletConnectKit,
-        approvedAddress: (address: String) -> Unit
+        onConnected: (address: String) -> Unit
     ) {
         if (walletConnectKit.isSessionStored) {
             walletConnectKit.loadSession(this)
-            walletConnectKit.address?.let(approvedAddress)
+            walletConnectKit.address?.let(onConnected)
         }
     }
 
     private fun onSessionApproved() {
-        walletConnectKit.address?.let(approvedAddress)
+        walletConnectKit.address?.let(onConnected)
     }
 
     private fun onSessionConnected() {
         walletConnectKit.address ?: walletConnectKit.requestHandshake()
+    }
+
+    private fun onSessionDisconnected() {
+        onDisconnected?.invoke()
     }
 }

@@ -72,13 +72,30 @@ Add the `WalletConnectButton` to your layout:
 ```
 
 Start the button with the previously created `WalletConnectKit` instance. When the account is
-successfully connected you will receive the account address.
+successfully connected, you will receive the account address.
 
 ```kotlin
 walletConnectButton.start(walletConnectKit) { address ->
     println("You are connected with account: $address")
 }
 ```
+
+Or:
+
+```kotlin
+walletConnectButton.start(walletConnectKit, ::onConnected, ::onDisconnected)
+```
+
+```kotlin
+private fun onConnected(address: String) {
+    println("You are connected with account: $address")
+}
+
+private fun onDisconnected() {
+    println("Account disconnected!")
+}
+```
+
 
 **Note:** `WalletConnectButton` is an `ImageButton` with a default theme that can be overridden by
 you!

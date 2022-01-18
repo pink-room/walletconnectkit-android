@@ -21,12 +21,14 @@ internal class WalletRepository(
     override fun openWallet() {
         val intent = Intent(Intent.ACTION_VIEW)
         intent.data = Uri.parse("wc:")
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         walletConnectKitConfig.context.startActivity(intent)
     }
 
     override fun requestHandshake() {
         val intent = Intent(Intent.ACTION_VIEW)
         intent.data = Uri.parse(sessionRepository.wcUri)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
         walletConnectKitConfig.context.startActivity(intent)
     }
 

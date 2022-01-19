@@ -1,8 +1,10 @@
 package dev.pinkroom.walletconnectkit.api
 
+import android.content.ActivityNotFoundException
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dev.pinkroom.walletconnectkit.WalletConnectKit
+import dev.pinkroom.walletconnectkit.common.NoWalletFoundException
 import dev.pinkroom.walletconnectkit.common.canBeIgnored
 import kotlinx.coroutines.launch
 import org.walletconnect.Session
@@ -49,7 +51,12 @@ internal class WCKViewModel constructor(
     }
 
     private fun onSessionConnected() {
-        walletConnectKit.address ?: walletConnectKit.requestHandshake()
+        walletConnectKit.address ?: runCatching { walletConnectKit.requestHandshake() }
+            .onFailure { throwable ->
+                if (throwable is ActivityNotFoundException)
+                    throw NoWalletFoundException("No wallet was found on the device.")
+                else throw throwable
+            }
     }
 
     private fun onSessionDisconnected() {

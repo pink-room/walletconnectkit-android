@@ -16,6 +16,10 @@ internal class WCKViewModel constructor(
     private val sessionCallback: Session.Callback?
 ) : ViewModel(), Session.Callback {
 
+    init {
+        loadSessionIfStored()
+    }
+
     override fun onStatus(status: Session.Status) {
         viewModelScope.launch {
             when (status) {
@@ -39,7 +43,7 @@ internal class WCKViewModel constructor(
         walletConnectKit.createSession(this)
     }
 
-    fun loadSessionIfStored() {
+    private fun loadSessionIfStored() {
         if (walletConnectKit.isSessionStored) {
             walletConnectKit.loadSession(this)
             walletConnectKit.address?.let(onConnected)

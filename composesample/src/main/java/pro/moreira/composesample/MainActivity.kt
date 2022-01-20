@@ -40,7 +40,13 @@ class MainActivity : ComponentActivity() {
         setContent {
             WalletConnectKitTheme {
                 Surface(color = MaterialTheme.colors.background) {
-                    Sample(walletConnectKit)
+                    var address: String? by remember { mutableStateOf(walletConnectKit.address) }
+                    Sample(
+                        address,
+                        walletConnectKit,
+                        onConnected = { address = it },
+                        onDisconnected = { address = null }
+                    )
                 }
             }
         }
@@ -48,10 +54,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun Sample(walletConnectKit: WalletConnectKit) {
-    val address = remember { mutableStateOf(walletConnectKit.address) }
+fun Sample(
+    address: String?,
+    walletConnectKit: WalletConnectKit,
+    onConnected: (String) -> Unit,
+    onDisconnected: () -> Unit
+) {
     Column {
-        if (address.value == null) {
+        if (address == null) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -59,8 +69,8 @@ fun Sample(walletConnectKit: WalletConnectKit) {
             ) {
                 WalletConnectButton(
                     walletConnectKit = walletConnectKit,
-                    onConnected = { address.value = it },
-                    onDisconnected = { address.value = null }
+                    onConnected = onConnected,
+                    onDisconnected = onDisconnected
                 )
             }
         } else {
@@ -80,7 +90,7 @@ fun Transaction(walletConnectKit: WalletConnectKit) {
             .padding(24.dp)
     ) {
         Text(
-            text = "Connected with: ",//${walletConnectKit.address!!}",
+            text = "Connected with: ${walletConnectKit.address}",
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )

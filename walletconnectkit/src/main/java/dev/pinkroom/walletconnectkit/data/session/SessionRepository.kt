@@ -21,11 +21,10 @@ internal class SessionRepository(
     override val address get() = session?.approvedAccounts()?.firstOrNull()
     internal val wcUri get() = config.toWCUri()
 
-
-    override fun createSession(callback: Session.Callback) {
+    override fun createSession(callback: Session.Callback?) {
         config = buildConfig()
         session = buildSession().apply {
-            addCallback(callback)
+            callback?.let(::addCallback)
             offer()
         }
     }
@@ -37,7 +36,7 @@ internal class SessionRepository(
         session = null
     }
 
-    override fun loadSession(callback: Session.Callback) {
+    override fun loadSession(callback: Session.Callback?) {
         storage.list().firstOrNull()?.let {
             config = Session.Config(
                 it.config.handshakeTopic,
@@ -52,7 +51,7 @@ internal class SessionRepository(
                 storage,
                 transporter,
                 walletConnectKitConfig.clientMeta
-            ).apply { addCallback(callback) }
+            ).apply { callback?.let(::addCallback) }
         }
     }
 

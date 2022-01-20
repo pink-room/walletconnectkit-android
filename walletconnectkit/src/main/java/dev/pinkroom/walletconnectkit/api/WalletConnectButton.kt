@@ -32,7 +32,6 @@ class WalletConnectButton @JvmOverloads constructor(
     ) {
         viewModel = WCKViewModel(walletConnectKit, onConnected, onDisconnected, sessionCallback)
         initInputListener()
-        viewModel.loadSessionIfStored()
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {

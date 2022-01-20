@@ -12,6 +12,7 @@ import androidx.compose.material.ButtonColors
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.res.painterResource
@@ -24,6 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import dev.pinkroom.walletconnectkit.R
 import dev.pinkroom.walletconnectkit.WalletConnectKit
 import dev.pinkroom.walletconnectkit.api.theme.WalletConnectIconBlue
+import kotlinx.coroutines.launch
 import org.walletconnect.Session
 
 @Composable
@@ -39,9 +41,14 @@ fun WalletConnectButton(
     border: BorderStroke = defaultBorderStroke(),
     content: @Composable RowScope.() -> Unit = { WalletConnectImage(contentModifier) },
 ) {
+    val scope = rememberCoroutineScope()
     val viewModel: WCKViewModel =
-        createViewModel(walletConnectKit, onConnected, onDisconnected, sessionCallback)
-    viewModel.loadSessionIfStored()
+        createViewModel(
+            walletConnectKit,
+            { scope.launch { onConnected(it) } },
+            { scope.launch { onDisconnected?.invoke() } },
+            sessionCallback
+        )
     WCKButton(colors, viewModel::onClick, modifier, shape, border, content)
 }
 

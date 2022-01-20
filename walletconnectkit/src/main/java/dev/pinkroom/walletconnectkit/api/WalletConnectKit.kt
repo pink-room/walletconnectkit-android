@@ -10,6 +10,10 @@ class WalletConnectKit private constructor(
     walletManager: WalletManager,
 ) : SessionManager by sessionManager, WalletManager by walletManager {
 
+    init {
+        loadSession()
+    }
+
     class Builder(config: WalletConnectKitConfig) {
 
         private val walletConnectKitModule = WalletConnectKitModule(config.context, config)

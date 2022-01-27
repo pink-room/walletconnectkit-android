@@ -10,6 +10,7 @@ import dev.pinkroom.walletconnectkit.data.session.SessionRepository
 import kotlinx.coroutines.withContext
 import org.walletconnect.Session
 import kotlin.coroutines.Continuation
+import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 internal class WalletRepository(
@@ -39,7 +40,7 @@ internal class WalletRepository(
         nonce: String?,
         gasPrice: String?,
         gasLimit: String?,
-    ): Session.MethodCall.Response {
+    ): Result<Session.MethodCall.Response> {
         return withContext(dispatchers.io) {
             suspendCoroutine { continuation ->
                 sessionRepository.address?.let { fromAddress ->
@@ -58,8 +59,8 @@ internal class WalletRepository(
                             )
                         ) { response -> onPerformTransactionResponse(id, response, continuation) }
                         openWallet()
-                    } ?: continuation.resumeWith(Result.failure(Throwable("Session not found!")))
-                } ?: continuation.resumeWith(Result.failure(Throwable("Address not found!")))
+                    } ?: continuation.resume(Result.failure(Throwable("Session not found!")))
+                } ?: continuation.resume(Result.failure(Throwable("Address not found!")))
             }
         }
     }
@@ -75,15 +76,15 @@ internal class WalletRepository(
     private fun onPerformTransactionResponse(
         id: Long,
         response: Session.MethodCall.Response,
-        continuation: Continuation<Session.MethodCall.Response>
+        continuation: Continuation<Result<Session.MethodCall.Response>>
     ) {
         if (id != response.id) {
             val throwable = Throwable("The response id is different from the transaction id!")
-            continuation.resumeWith(Result.failure(throwable))
+            continuation.resume(Result.failure(throwable))
             return
         }
         response.error?.let {
-            continuation.resumeWith(Result.failure(Throwable(it.message)))
-        } ?: continuation.resumeWith(Result.success(response))
+            continuation.resume(Result.failure(Throwable(it.message)))
+        } ?: continuation.resume(Result.success(response))
     }
 }

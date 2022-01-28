@@ -5,8 +5,8 @@ import org.walletconnect.Session
 interface SessionManager {
     var session: Session?
     val address: String?
-    fun createSession(callback: Session.Callback)
+    fun createSession()
     fun removeSession()
-    fun loadSession(callback: Session.Callback)
+    fun loadSession()
     val isSessionStored: Boolean
 }

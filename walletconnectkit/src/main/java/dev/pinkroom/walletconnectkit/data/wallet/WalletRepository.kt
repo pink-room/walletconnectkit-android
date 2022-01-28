@@ -1,20 +1,19 @@
 package dev.pinkroom.walletconnectkit.data.wallet
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import dev.pinkroom.walletconnectkit.WalletConnectKitConfig
 import dev.pinkroom.walletconnectkit.common.Dispatchers
 import dev.pinkroom.walletconnectkit.common.toHex
 import dev.pinkroom.walletconnectkit.common.toWei
 import dev.pinkroom.walletconnectkit.data.session.SessionRepository
 import kotlinx.coroutines.withContext
 import org.walletconnect.Session
-import kotlin.coroutines.Continuation
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 internal class WalletRepository(
-    private val walletConnectKitConfig: WalletConnectKitConfig,
+    private val context: Context,
     private val sessionRepository: SessionRepository,
     private val dispatchers: Dispatchers,
 ) : WalletManager {
@@ -23,68 +22,80 @@ internal class WalletRepository(
         val intent = Intent(Intent.ACTION_VIEW)
         intent.data = Uri.parse("wc:")
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        walletConnectKitConfig.context.startActivity(intent)
+        context.startActivity(intent)
     }
 
     override fun requestHandshake() {
         val intent = Intent(Intent.ACTION_VIEW)
         intent.data = Uri.parse(sessionRepository.wcUri)
         intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        walletConnectKitConfig.context.startActivity(intent)
+        context.startActivity(intent)
     }
 
     override suspend fun performTransaction(
         address: String,
         value: String,
-        data: String?,
+        data: String,
         nonce: String?,
         gasPrice: String?,
         gasLimit: String?,
     ): Result<Session.MethodCall.Response> {
         return withContext(dispatchers.io) {
             suspendCoroutine { continuation ->
-                sessionRepository.address?.let { fromAddress ->
-                    sessionRepository.session?.let { session ->
-                        val id = System.currentTimeMillis()
-                        session.performMethodCall(
-                            Session.MethodCall.SendTransaction(
-                                id,
-                                fromAddress,
-                                address,
-                                nonce,
-                                gasPrice,
-                                gasLimit,
-                                value.toWei().toHex(),
-                                data ?: ""
-                            )
-                        ) { response -> onPerformTransactionResponse(id, response, continuation) }
-                        openWallet()
-                    } ?: continuation.resume(Result.failure(Throwable("Session not found!")))
-                } ?: continuation.resume(Result.failure(Throwable("Address not found!")))
+                performTransaction(
+                    address,
+                    value,
+                    data,
+                    nonce,
+                    gasPrice,
+                    gasLimit,
+                    continuation::resume
+                )
             }
         }
     }
 
-    override suspend fun performTransaction(
+    override fun performTransaction(
         address: String,
         value: String,
+        data: String,
         nonce: String?,
         gasPrice: String?,
         gasLimit: String?,
-    ) = performTransaction(address, value, null, nonce, gasLimit, gasLimit)
+        onResult: (Result<Session.MethodCall.Response>) -> Unit
+    ) {
+        sessionRepository.address?.let { fromAddress ->
+            sessionRepository.session?.let { session ->
+                val id = System.currentTimeMillis()
+                session.performMethodCall(
+                    Session.MethodCall.SendTransaction(
+                        id,
+                        fromAddress,
+                        address,
+                        nonce,
+                        gasPrice,
+                        gasLimit,
+                        value.toWei().toHex(),
+                        data
+                    )
+                ) { response -> onPerformTransactionResponse(id, response, onResult) }
+                openWallet()
+            } ?: onResult(Result.failure(Throwable("Session not found!")))
+        } ?: onResult(Result.failure(Throwable("Address not found!")))
+    }
 
     private fun onPerformTransactionResponse(
         id: Long,
         response: Session.MethodCall.Response,
-        continuation: Continuation<Result<Session.MethodCall.Response>>
+        onResult: (Result<Session.MethodCall.Response>) -> Unit
     ) {
         if (id != response.id) {
             val throwable = Throwable("The response id is different from the transaction id!")
-            continuation.resume(Result.failure(throwable))
+            onResult(Result.failure(throwable))
             return
         }
         response.error?.let {
-            continuation.resume(Result.failure(Throwable(it.message)))
-        } ?: continuation.resume(Result.success(response))
+            onResult(Result.failure(Throwable(it.message)))
+        } ?: onResult(Result.success(response))
     }
 }

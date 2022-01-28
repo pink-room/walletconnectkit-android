@@ -9,17 +9,19 @@ interface WalletManager {
     suspend fun performTransaction(
         address: String,
         value: String,
-        data: String?,
+        data: String = "",
         nonce: String? = null,
         gasPrice: String? = null,
         gasLimit: String? = null,
     ): Result<Session.MethodCall.Response>
 
-    suspend fun performTransaction(
+    fun performTransaction(
         address: String,
         value: String,
+        data: String = "",
         nonce: String? = null,
         gasPrice: String? = null,
         gasLimit: String? = null,
-    ): Result<Session.MethodCall.Response>
+        onResult: (Result<Session.MethodCall.Response>) -> Unit
+    )
 }

@@ -17,18 +17,10 @@ internal class SessionRepository(
 
     private var config = buildConfig()
     override var session: Session? = null
-
     override val address get() = session?.approvedAccounts()?.firstOrNull()
     internal val wcUri get() = config.toWCUri()
 
-
-    override fun createSession(callback: Session.Callback) {
-        config = buildConfig()
-        session = buildSession().apply {
-            addCallback(callback)
-            offer()
-        }
-    }
+    override fun createSession() = createSession(null)
 
     override fun removeSession() {
         session?.kill()
@@ -37,7 +29,19 @@ internal class SessionRepository(
         session = null
     }
 
-    override fun loadSession(callback: Session.Callback) {
+    override fun loadSession() = loadSession(null)
+
+    override val isSessionStored get() = storage.list().firstOrNull() != null
+
+    internal fun createSession(callback: Session.Callback?) {
+        config = buildConfig()
+        session = buildSession().apply {
+            callback?.let(::addCallback)
+            offer()
+        }
+    }
+
+    internal fun loadSession(callback: Session.Callback?) {
         storage.list().firstOrNull()?.let {
             config = Session.Config(
                 it.config.handshakeTopic,
@@ -52,12 +56,9 @@ internal class SessionRepository(
                 storage,
                 transporter,
                 walletConnectKitConfig.clientMeta
-            ).apply { addCallback(callback) }
+            ).apply { callback?.let(::addCallback) }
         }
     }
-
-    override val isSessionStored
-        get() = storage.list().firstOrNull() != null
 
     private fun buildConfig(): Session.Config {
         val handshakeTopic = UUID.randomUUID().toString()

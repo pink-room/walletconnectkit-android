@@ -13,7 +13,7 @@ interface WalletManager {
         nonce: String? = null,
         gasPrice: String? = null,
         gasLimit: String? = null,
-    ): Session.MethodCall.Response
+    ): Result<Session.MethodCall.Response>
 
     suspend fun performTransaction(
         address: String,
@@ -21,5 +21,5 @@ interface WalletManager {
         nonce: String? = null,
         gasPrice: String? = null,
         gasLimit: String? = null,
-    ): Session.MethodCall.Response
+    ): Result<Session.MethodCall.Response>
 }

@@ -127,7 +127,7 @@ is a `suspend` function so, you need to call it inside a `coroutine`.
 
 ````kotlin
 lifecycleScope.launch {
-    runCatching { walletConnectKit.performTransaction(toAddress, value) }
+    walletConnectKit.performTransaction(toAddress, value)
         .onSuccess { /* Handle onSuccess */ }
         .onFailure { /* Handle onFailure */ }
 }

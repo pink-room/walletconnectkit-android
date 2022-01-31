@@ -21,10 +21,6 @@ internal class WalletConnectManager(
             address?.let { field?.invoke(it) }
         }
     override var onDisconnected: (() -> Unit)? = null
-        set(value) {
-            field = value
-            address ?: field?.invoke()
-        }
     override var sessionCallback: Session.Callback? = null
 
     init {
@@ -35,6 +31,11 @@ internal class WalletConnectManager(
 
     override fun loadSession() = sessionRepository.loadSession(this)
 
+    override fun removeSession() {
+        sessionRepository.removeSession()
+        runOnMainThread { onDisconnected?.invoke() }
+    }
+
     override fun onMethodCall(call: Session.MethodCall) = runOnMainThread {
         sessionCallback?.onMethodCall(call)
     }
@@ -43,7 +44,6 @@ internal class WalletConnectManager(
         when (status) {
             is Session.Status.Approved -> onSessionApproved()
             is Session.Status.Connected -> onSessionConnected()
-            is Session.Status.Closed -> onSessionDisconnected()
             else -> canBeIgnored
         }
         sessionCallback?.onStatus(status)
@@ -55,10 +55,6 @@ internal class WalletConnectManager(
 
     private fun onSessionConnected() {
         address ?: requestHandshake()
-    }
-
-    private fun onSessionDisconnected() {
-        onDisconnected?.invoke()
     }
 
     private fun loadSessionIfStored() {

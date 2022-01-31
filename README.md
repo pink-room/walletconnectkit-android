@@ -15,6 +15,7 @@ library for Kotlin is stable, we will support the v2 protocol.
     <a href="#installation">Installation</a> &bull;
     <a href="#setup">Setup</a> &bull;
     <a href="#connect-button">Connect Button</a> &bull;
+    <a href="#handle-connection">Handle Connection</a> &bull;
     <a href="#transactions">Transactions</a> &bull;
     <a href="#Advanced">Advanced</a>
 </p>
@@ -30,7 +31,7 @@ library for Kotlin is stable, we will support the v2 protocol.
 ## Installation
 
 ``` groovy
-implementation 'dev.pinkroom:walletconnectkit:<latest_version>'
+implementation 'dev.pinkroom:walletconnectkit:<last_version>'
 ```
 
 ## Setup
@@ -39,22 +40,19 @@ First, you need to create a config:
 
 ```kotlin
 val config = WalletConnectKitConfig(
-    context = this,
-    bridgeUrl = "wss://bridge.aktionariat.com:8887",
+    bridgeUrl = "wss://bridge.walletconnect.org",
     appUrl = "walletconnectkit.com",
     appName = "WalletConnectKit",
     appDescription = "WalletConnectKit is the Swiss Army toolkit for WalletConnect!"
 )
 ```
 
-**Note:** The bridge url provided above is a deployed version of
-[this](https://github.com/aktionariat/walletconnect-bridge) repo by its owner. Feel free to use it
-or use your own bridge server.
+**Note:** You can use your own bridge or any other publicly available.
 
 Then, build the `WalletConnectKit` instance:
 
 ```kotlin
-val walletConnectKit = WalletConnectKit.Builder(config).build()
+val walletConnectKit = WalletConnectKit.builder(context).config(config).build()
 ```
 
 And you are ready to go! 🚀
@@ -71,19 +69,25 @@ Add the `WalletConnectButton` to your layout:
     android:layout_height="wrap_content" />
 ```
 
-Start the button with the previously created `WalletConnectKit` instance. When the account is
-successfully connected, you will receive the account address.
+Start the button with the previously created `WalletConnectKit` instance.
 
 ```kotlin
-walletConnectButton.start(walletConnectKit) { address ->
-    println("You are connected with account: $address")
-}
+walletConnectButton.start(walletConnectKit)
 ```
 
-Or:
+**Note:** `WalletConnectButton` is an `ImageButton` with a default theme that can be overridden by
+you!
+
+## Handle Connection
+
+To handle the connection state between your DApp and Wallet, you can set the `onConnected` and
+`onDisconnected` callbacks:
 
 ```kotlin
-walletConnectButton.start(walletConnectKit, ::onConnected, ::onDisconnected)
+walletConnectKit.apply {
+    onConnected = ::onConnected
+    onDisconnected = ::onDisconnected
+}
 ```
 
 ```kotlin
@@ -96,15 +100,11 @@ private fun onDisconnected() {
 }
 ```
 
-
-**Note:** `WalletConnectButton` is an `ImageButton` with a default theme that can be overridden by
-you!
-
-If you want to be informed about the status of the `WalletConnect` session, you can set a
-`Session.Callback` before calling the `start` method.
+If you want to be informed about the status of the `WalletConnect` session, you can also set a
+`Session.Callback`.
 
 ```kotlin
-class MyActivity : AppCompatActivity(), Session.Callback {
+class MyClass : Session.Callback {
 
     override fun onMethodCall(call: Session.MethodCall) {
         // Handle onMethodCall
@@ -117,17 +117,32 @@ class MyActivity : AppCompatActivity(), Session.Callback {
 ```
 
 ````kotlin
-walletConnectButton.sessionCallback = this
+walletConnectkit.sessionCallback = this
 ````
 
 ## Transactions
 
-In order to perform a transaction you just need to call the `performTransaction` method. This method
-is a `suspend` function so, you need to call it inside a `coroutine`.
+In order to perform a transaction, you just need to call the `performTransaction` method. This
+method has two different implementations. One is based on callbacks and the other is powered by
+coroutines.
+
+### With callbacks
+
+````kotlin
+walletConnectKit.performTransaction(toAddress, value) { result ->
+    if (result.isSuccess) {
+        // Handle onSuccess
+    } else {
+        // Handle onFailure
+    }
+}
+````
+
+### With coroutines
 
 ````kotlin
 lifecycleScope.launch {
-    runCatching { walletConnectKit.performTransaction(toAddress, value) }
+    walletConnectKit.performTransaction(toAddress, value)
         .onSuccess { /* Handle onSuccess */ }
         .onFailure { /* Handle onFailure */ }
 }
@@ -139,8 +154,8 @@ function.
 
 ## Advanced
 
-If you don't want to use the `WalletConnectKitButton` and want to create your own implementation,
-you can still use the `WalletConnectKit` to manage the connection between your DApp and Wallet.
+Don't want to use the `WalletConnectKitButton`? Want to create your own implementation? You can
+still use the `WalletConnectKit` to manage the connection between your DApp and Wallet.
 
 Below are the most relevant methods provided by the `WalletConnectKit` that you need to care about:
 
@@ -154,8 +169,8 @@ Below are the most relevant methods provided by the `WalletConnectKit` that you 
 <tbody>
 
 <tr>
-<td><b>createSession(callback: Session.Callback)</b></td>
-<td>Creates a session and stores it locally. After calling this method you should receive a `Session.Status.Connected` in the passed callback. This is where you should call the `requestHandshake` method (see below).</td>
+<td><b>createSession()</b></td>
+<td>Creates a session and stores it locally.</td>
 </tr>
 
 <tr>
@@ -164,7 +179,7 @@ Below are the most relevant methods provided by the `WalletConnectKit` that you 
 </tr>
 
 <tr>
-<td><b>loadSession(callback: Session.Callback)</b></td>
+<td><b>loadSession()</b></td>
 <td>Loads the session that is stored locally.</td>
 </tr>
 
@@ -181,16 +196,6 @@ Below are the most relevant methods provided by the `WalletConnectKit` that you 
 <tr>
 <td><b>address</b></td>
 <td>Returns the approved account address or null otherwise.</td>
-</tr>
-
-<tr>
-<td><b>requestHandshake()</b></td>
-<td>Starts an intent that performs the handshake between your DApp and a Wallet.</td>
-</tr>
-
-<tr>
-<td><b>openWallet()</b></td>
-<td>Starts an intent that opens a Wallet.</td>
 </tr>
 
 </tbody>

@@ -1,7 +1,7 @@
 package dev.pinkroom.walletconnectkit.data.session
 
 import dev.pinkroom.walletconnectkit.WalletConnectKitConfig
-import org.komputing.khex.extensions.toNoPrefixHexString
+import dev.pinkroom.walletconnectkit.data.crypto.KeyRepository
 import org.walletconnect.Session
 import org.walletconnect.impls.OkHttpTransport
 import org.walletconnect.impls.WCSession
@@ -62,7 +62,7 @@ internal class SessionRepository(
 
     private fun buildConfig(): Session.Config {
         val handshakeTopic = UUID.randomUUID().toString()
-        val key = ByteArray(32).also { Random().nextBytes(it) }.toNoPrefixHexString()
+        val key = KeyRepository.generate()
         return Session.Config(handshakeTopic, walletConnectKitConfig.bridgeUrl, key, "wc", 1)
     }
 

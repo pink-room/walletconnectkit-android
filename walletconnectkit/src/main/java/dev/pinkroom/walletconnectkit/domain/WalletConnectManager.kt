@@ -12,7 +12,7 @@ import org.walletconnect.Session
 internal class WalletConnectManager(
     private val sessionRepository: SessionRepository,
     walletRepository: WalletRepository,
-) : SessionManager by sessionRepository, WalletManager by walletRepository, SessionCallback,
+) : SessionManager by sessionRepository, WalletManager by walletRepository, ConnectionCallback,
     Session.Callback {
 
     override var onConnected: ((address: String) -> Unit)? = null

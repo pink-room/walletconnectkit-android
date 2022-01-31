@@ -15,10 +15,10 @@ internal class SessionRepository(
     private val walletConnectKitConfig: WalletConnectKitConfig,
 ) : SessionManager {
 
-    private var config = buildConfig()
+    private var config: Session.Config? = null
     override var session: Session? = null
     override val address get() = session?.approvedAccounts()?.firstOrNull()
-    internal val wcUri get() = config.toWCUri()
+    internal val wcUri get() = config?.toWCUri()
 
     override fun createSession() = createSession(null)
 
@@ -34,10 +34,11 @@ internal class SessionRepository(
     override val isSessionStored get() = storage.list().firstOrNull() != null
 
     internal fun createSession(callback: Session.Callback?) {
-        config = buildConfig()
-        session = buildSession().apply {
-            callback?.let(::addCallback)
-            offer()
+        config = buildConfig().also {
+            session = buildSession(it).apply {
+                callback?.let(::addCallback)
+                offer()
+            }
         }
     }
 
@@ -66,7 +67,7 @@ internal class SessionRepository(
         return Session.Config(handshakeTopic, walletConnectKitConfig.bridgeUrl, key, "wc", 1)
     }
 
-    private fun buildSession() = WCSession(
+    private fun buildSession(config: Session.Config) = WCSession(
         config.toFullyQualifiedConfig(),
         payloadAdapter,
         storage,

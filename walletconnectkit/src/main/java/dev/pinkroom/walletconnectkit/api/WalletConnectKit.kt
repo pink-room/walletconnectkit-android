@@ -5,13 +5,13 @@ import android.content.Context
 import dev.pinkroom.walletconnectkit.common.WalletConnectKitModule
 import dev.pinkroom.walletconnectkit.data.session.SessionManager
 import dev.pinkroom.walletconnectkit.data.wallet.WalletManager
-import dev.pinkroom.walletconnectkit.domain.SessionCallback
+import dev.pinkroom.walletconnectkit.domain.ConnectionCallback
 import dev.pinkroom.walletconnectkit.domain.WalletConnectManager
 
 class WalletConnectKit private constructor(
     walletConnectManager: WalletConnectManager,
 ) : SessionManager by walletConnectManager, WalletManager by walletConnectManager,
-    SessionCallback by walletConnectManager {
+    ConnectionCallback by walletConnectManager {
 
     interface Configuration {
         fun config(config: WalletConnectKitConfig): Build

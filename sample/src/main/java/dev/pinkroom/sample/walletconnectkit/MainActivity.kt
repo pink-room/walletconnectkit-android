@@ -16,16 +16,19 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val config by lazy {
-        WalletConnectKitConfig(
-            context = this,
-            bridgeUrl = "wss://bridge.aktionariat.com:8887",
-            appUrl = "walletconnectkit.com",
-            appName = "WalletConnect Kit",
-            appDescription = "This is the Swiss Army toolkit for WalletConnect!"
-        )
+    private val config = WalletConnectKitConfig(
+        bridgeUrl = "wss://bridge.walletconnect.org",
+        appUrl = "walletconnectkit.com",
+        appName = "WalletConnect Kit",
+        appDescription = "This is the Swiss Army toolkit for WalletConnect!"
+    )
+
+    private val walletConnectKit by lazy {
+        WalletConnectKit.builder(this).config(config).build().apply {
+            onConnected = ::onConnected
+            onDisconnected = ::onDisconnected
+        }
     }
-    private val walletConnectKit by lazy { WalletConnectKit.Builder(config).build() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,7 +57,7 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
     }
 
     private fun initLoginView() = with(binding) {
-        loginView.start(walletConnectKit, ::onConnected, ::onDisconnected)
+        loginView.start(walletConnectKit)
     }
 
     private fun onConnected(address: String) = with(binding) {

@@ -9,4 +9,5 @@ dependencyResolutionManagement {
 }
 rootProject.name = "WalletConnectKit"
 include ':sample'
+include ':composesample'
 include ':walletconnectkit'

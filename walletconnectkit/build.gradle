@@ -54,6 +54,14 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = compose_version
+    }
 }
 
 dependencies {
@@ -62,9 +70,14 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.4.0'
     implementation 'com.google.android.material:material:1.4.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
+    // Compose
+    implementation "androidx.compose.runtime:runtime:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling:$compose_version"
+    implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.4.0"
     // Coroutines
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0-native-mt'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0-native-mt'
     // WalletConnect
     api 'com.github.walletconnect:kotlin-walletconnect-lib:0.9.8'
     implementation 'com.github.komputing:khex:1.1.2'
@@ -78,7 +91,7 @@ dependencies {
     // Tests
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.nhaarman.mockitokotlin2:mockito-kotlin:2.2.0'
-    testImplementation 'org.mockito:mockito-inline:4.1.0'
+    testImplementation 'org.mockito:mockito-inline:4.2.0'
     testImplementation 'com.github.javafaker:javafaker:1.0.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'

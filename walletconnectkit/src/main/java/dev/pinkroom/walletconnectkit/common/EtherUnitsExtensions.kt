@@ -9,3 +9,5 @@ fun String.toWei(unit: Convert.Unit = Convert.Unit.ETHER): BigDecimal = Convert.
 fun BigDecimal.toHex(): String = Numeric.toHexStringWithPrefixSafe(this.toBigInteger())
 
 fun String.toHex(): String = Numeric.toHexString(this.toByteArray())
+
+fun String.hasHexPrefix(): Boolean = Numeric.containsHexPrefix(this)

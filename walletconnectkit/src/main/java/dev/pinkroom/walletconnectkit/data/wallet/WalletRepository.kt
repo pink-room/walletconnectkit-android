@@ -4,6 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import dev.pinkroom.walletconnectkit.WalletConnectKitConfig
 import dev.pinkroom.walletconnectkit.common.Dispatchers
+import dev.pinkroom.walletconnectkit.common.hasHexPrefix
 import dev.pinkroom.walletconnectkit.common.toHex
 import dev.pinkroom.walletconnectkit.common.toWei
 import dev.pinkroom.walletconnectkit.data.session.SessionRepository
@@ -78,11 +79,12 @@ internal class WalletRepository(
                 sessionRepository.address?.let { address ->
                     sessionRepository.session?.let { session ->
                         val id = System.currentTimeMillis()
+                        val messageParam = if (message.hasHexPrefix()) message else message.toHex()
                         session.performMethodCall(
                             Session.MethodCall.Custom(
                                 id,
                                 "personal_sign",
-                                listOf(message.toHex(), address)
+                                listOf(messageParam, address)
                             )
                         ) { onResponse(id, it, continuation) }
                         openWallet()

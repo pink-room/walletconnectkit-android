@@ -137,6 +137,18 @@ lifecycleScope.launch {
 the encoded function data of the smart contract to the `data` parameter of the `performTransaction`
 function.
 
+## Sign
+
+If you only want to sign a message, you can use the `personalSign` method.
+
+```kotlin
+lifecycleScope.launch {
+    runCatching { walletConnectKit.personalSign(message) }
+        .onSuccess { /* Handle onSuccess */ }
+        .onFailure { /* Handle onFailure */ }
+}
+```
+
 ## Advanced
 
 If you don't want to use the `WalletConnectKitButton` and want to create your own implementation,

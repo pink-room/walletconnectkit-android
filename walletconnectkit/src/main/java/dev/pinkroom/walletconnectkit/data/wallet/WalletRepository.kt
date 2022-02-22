@@ -56,7 +56,7 @@ internal class WalletRepository(
                                 value.toWei().toHex(),
                                 data ?: ""
                             )
-                        ) { response -> onPerformTransactionResponse(id, response, continuation) }
+                        ) { response -> onResponse(id, response, continuation) }
                         openWallet()
                     } ?: continuation.resumeWith(Result.failure(Throwable("Session not found!")))
                 } ?: continuation.resumeWith(Result.failure(Throwable("Address not found!")))
@@ -72,7 +72,27 @@ internal class WalletRepository(
         gasLimit: String?,
     ) = performTransaction(address, value, null, nonce, gasLimit, gasLimit)
 
-    private fun onPerformTransactionResponse(
+    override suspend fun personalSign(message: String): Session.MethodCall.Response {
+        return withContext(dispatchers.io) {
+            suspendCoroutine { continuation ->
+                sessionRepository.address?.let { address ->
+                    sessionRepository.session?.let { session ->
+                        val id = System.currentTimeMillis()
+                        session.performMethodCall(
+                            Session.MethodCall.Custom(
+                                id,
+                                "personal_sign",
+                                listOf(message.toHex(), address)
+                            )
+                        ) { onResponse(id, it, continuation) }
+                        openWallet()
+                    } ?: continuation.resumeWith(Result.failure(Throwable("Session not found!")))
+                } ?: continuation.resumeWith(Result.failure(Throwable("Address not found!")))
+            }
+        }
+    }
+
+    private fun onResponse(
         id: Long,
         response: Session.MethodCall.Response,
         continuation: Continuation<Session.MethodCall.Response>

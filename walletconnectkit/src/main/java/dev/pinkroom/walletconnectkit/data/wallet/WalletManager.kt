@@ -22,4 +22,6 @@ interface WalletManager {
         gasPrice: String? = null,
         gasLimit: String? = null,
     ): Session.MethodCall.Response
+
+    suspend fun personalSign(message: String): Session.MethodCall.Response
 }

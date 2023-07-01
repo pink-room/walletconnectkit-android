@@ -8,12 +8,12 @@ localProperties.load(new FileInputStream(rootProject.file("local.properties")))
 
 android {
     namespace 'dev.pinkroom.walletconnectkit.sign.dapp.sample'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId 'dev.pinkroom.walletconnectkit.sign.dapp.sample'
         minSdk 24
-        targetSdk 33
+        targetSdk 34
         versionCode 1
         versionName '1.0'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'

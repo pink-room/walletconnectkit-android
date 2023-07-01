@@ -18,6 +18,7 @@ import dev.pinkroom.walletconnectkit.core.chains.toJson
 import dev.pinkroom.walletconnectkit.core.data.Account
 import dev.pinkroom.walletconnectkit.core.initializeCoreClient
 import dev.pinkroom.walletconnectkit.core.sessions
+import dev.pinkroom.walletconnectkit.sign.dapp.data.repository.WalletRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -31,12 +32,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.net.URLEncoder
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 internal class DAppManager(
     private val context: Context,
     private val config: WalletConnectKitConfig,
+    private val walletRepository: WalletRepository,
 ) : DAppApi {
 
     override val events: SharedFlow<Sign.Model?> by lazy { DAppDelegate.events }
@@ -66,15 +69,6 @@ internal class DAppManager(
             config.networkClientTimeout,
         )
         setSelectedAccount()
-    }
-
-    private fun setSelectedAccount() {
-        activeAccount = sessions.firstOrNull()?.accounts?.firstOrNull()
-        scope.launch {
-            events.filter { it is Sign.Model.ApprovedSession }
-                .map { it as Sign.Model.ApprovedSession }
-                .collect { activeAccount = it.approvedAccounts.firstOrNull() }
-        }
     }
 
     override suspend fun connect(
@@ -114,9 +108,9 @@ internal class DAppManager(
         optionalChains = optionalChains,
         pairing = pairing,
         onProposedSequence = { uri ->
-            var redirect = pairing.peerAppMetaData?.redirect
-            if (pairing.peerAppMetaData?.redirect?.startsWith("trust://") == true) redirect =
-                pairing.peerAppMetaData?.redirect + "wc?uri=" + uri
+            val wcUriQuery = "wc?uri=${uri.encodeUri()}"
+            val redirect = pairing.peerAppMetaData?.redirect?.let { "it://$wcUriQuery" }
+                ?: run { uri }
             navigateToWallet(redirect)
             onSuccess()
         },
@@ -187,6 +181,9 @@ internal class DAppManager(
         return waitForResponse(requestId)
     }
 
+    override suspend fun getInstalledWallets(chains: List<String>) =
+        walletRepository.getWalletsInstalled(chains)
+
     private fun connectToWallet(
         chains: List<Chain>,
         optionalChains: List<Chain>,
@@ -251,6 +248,17 @@ internal class DAppManager(
         return when (val result = (response as Sign.Model.SessionRequestResponse).result) {
             is Sign.Model.JsonRpcResponse.JsonRpcResult -> Result.success(result.result)
             is Sign.Model.JsonRpcResponse.JsonRpcError -> Result.failure(Throwable(result.toString()))
+        }
+    }
+
+    private fun String.encodeUri() = URLEncoder.encode(this, "UTF-8")
+
+    private fun setSelectedAccount() {
+        activeAccount = sessions.firstOrNull()?.accounts?.firstOrNull()
+        scope.launch {
+            events.filter { it is Sign.Model.ApprovedSession }
+                .map { it as Sign.Model.ApprovedSession }
+                .collect { activeAccount = it.approvedAccounts.firstOrNull() }
         }
     }
 }

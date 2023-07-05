@@ -73,7 +73,7 @@ private fun AccountScreen(
     val accounts = activeSessions.flatMap { it.accounts }.map { it.address to it }
     walletConnectKit.activeAccount?.let { account ->
         DropdownMenu(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(32.dp),
             items = accounts,
             selectedItem = account.address to account,
             onItemClick = { walletConnectKit.activeAccount = it.second },
@@ -84,6 +84,7 @@ private fun AccountScreen(
                     Text(
                         modifier = Modifier.padding(start = 12.dp),
                         text = it.first.middleOverflow(),
+                        color = MaterialTheme.colorScheme.onBackground,
                     )
                 }
             },

@@ -11,7 +11,6 @@ import dev.pinkroom.walletconnectkit.sign.dapp.data.model.Wallet
 import dev.pinkroom.walletconnectkit.sign.dapp.data.model.toWallet
 import dev.pinkroom.walletconnectkit.sign.dapp.data.service.ExplorerService
 
-
 internal class WalletRepository(
     private val context: Context,
     private val walletConnectKitConfig: WalletConnectKitConfig,

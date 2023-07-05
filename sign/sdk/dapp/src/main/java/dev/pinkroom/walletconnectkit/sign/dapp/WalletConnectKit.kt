@@ -3,7 +3,7 @@ package dev.pinkroom.walletconnectkit.sign.dapp
 import android.content.Context
 import dev.pinkroom.walletconnectkit.core.WalletConnectKitConfig
 import dev.pinkroom.walletconnectkit.core.appName
-import dev.pinkroom.walletconnectkit.sign.dapp.data.NetworkModule
+import dev.pinkroom.walletconnectkit.sign.dapp.data.DependenciesModule
 
 class WalletConnectKit
 private constructor(dAppManager: DAppManager) : DAppApi by dAppManager {
@@ -35,8 +35,13 @@ private constructor(dAppManager: DAppManager) : DAppApi by dAppManager {
         }
 
         override fun build(): WalletConnectKit {
-            val networkModule = NetworkModule(context, config)
-            val dappManager = DAppManager(context, config, networkModule.walletRepository)
+            val dependenciesModule = DependenciesModule(context, config)
+            val dappManager = DAppManager(
+                context,
+                config,
+                dependenciesModule.walletRepository,
+                dependenciesModule.preferencesRepository,
+            )
             return WalletConnectKit(dappManager)
         }
     }

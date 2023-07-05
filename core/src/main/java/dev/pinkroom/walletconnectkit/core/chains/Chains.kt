@@ -32,13 +32,10 @@ object EthEvent {
 
 private val ethMethods = listOf(
     EthMethod.PERSONAL_SIGN,
-    EthMethod.ETH_SIGN,
-    EthMethod.ETH_SIGN_TRANSACTION,
     EthMethod.ETH_SIGN_TYPED_DATA,
     EthMethod.ETH_SIGN_TYPED_DATA_V3,
     EthMethod.ETH_SIGN_TYPED_DATA_V4,
     EthMethod.ETH_SEND_TRANSACTION,
-    EthMethod.WALLET_SWITCH_ETHEREUM_CHAIN,
 )
 
 private val ethEvents = listOf(

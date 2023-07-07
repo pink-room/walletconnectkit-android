@@ -18,6 +18,10 @@ The SDK that simplifies the integration of the
 
 -------
 
+## Demo
+
+https://github.com/pink-room/walletconnectkit-android/assets/2984462/d37f70c2-d227-4f7e-a789-f562b5dfc260
+
 ## Installation
 
 Add Jitpack to your repositories list:

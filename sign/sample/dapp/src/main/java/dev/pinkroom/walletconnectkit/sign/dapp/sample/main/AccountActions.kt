@@ -2,7 +2,6 @@ package dev.pinkroom.walletconnectkit.sign.dapp.sample.main
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
@@ -21,17 +20,11 @@ import kotlinx.coroutines.launch
 fun AccountActions(walletConnectKit: WalletConnectKit) {
     val scope = rememberCoroutineScope()
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(
-                vertical = 12.dp,
-                horizontal = 32.dp,
-            ),
+        modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Button(
-            modifier = Modifier.padding(top = 8.dp),
             onClick = {
                 scope.launch {
                     walletConnectKit.performEthSendTransaction("0x670E1F1983CC46933A277dE78e89290a541A7527")
@@ -42,7 +35,6 @@ fun AccountActions(walletConnectKit: WalletConnectKit) {
             modifier = Modifier.padding(top = 8.dp),
             onClick = { scope.launch { walletConnectKit.performEthPersonalSign("Hello World!") } },
         ) { Text(text = "eth_personalSign", color = Color.White) }
-        Spacer(modifier = Modifier.weight(1f))
         Button(
             modifier = Modifier.padding(top = 8.dp),
             colors = ButtonDefaults.buttonColors(backgroundColor = Color(0xFFCF6E6E)),

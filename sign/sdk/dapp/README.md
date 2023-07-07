@@ -58,7 +58,7 @@ And you are ready to go! 🚀
 ## Connect Button
 
 The simplest way to connect a DApp to a Wallet is to use the `WalletConnectKitButton`. This is a
-composable component that you can use to connect existing pairs or new sessions. Using Jetpack
+composable component that you can use to connect existing pairings or new sessions. Using Jetpack
 Compose you only need to do this:
 
 ```Kotlin  
@@ -222,18 +222,18 @@ walletConnectKit.connect(
 )  
 ```
 
-### Pairs
+### Pairings
 
-To obtain the list of pairs currently available simple get them:
+To obtain the list of pairings currently available simple get them:
 
 ```Kotlin  
 walletConnectKit.pairings
 ```  
 
-If you have an existing pair, you can reuse it and connect to that specific wallet:
+If you have an existing pairing, you can reuse it and connect to that specific wallet:
 
 ```kotlin  
-walletConnectKit.connectExistingPair(
+walletConnectKit.connectExistingPairing(
     chains = chains,
     optionalChains = optionalChains,
     pairing = selectedPairing,

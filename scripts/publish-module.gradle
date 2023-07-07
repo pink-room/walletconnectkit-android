@@ -34,7 +34,7 @@ afterEvaluate {
                     licenses {
                         license {
                             name = 'Apache-2.0 License'
-                            url = 'https://github.com/pink-room/walletconnectkit-android/blob/main/LICENSE'
+                            url = 'https://github.com/pink-room/walletconnectkit-android/blob/v2/LICENSE'
                         }
                     }
                     developers {
@@ -58,7 +58,7 @@ afterEvaluate {
                     scm {
                         connection = 'scm:git:github.com/pink-room/walletconnectkit-android.git'
                         developerConnection = 'scm:git:ssh://github.com/pink-room/walletconnectkit-android.git'
-                        url = 'https://github.com/pink-room/walletconnectkit-android/tree/main'
+                        url = 'https://github.com/pink-room/walletconnectkit-android/tree/v2'
                     }
                 }
             }

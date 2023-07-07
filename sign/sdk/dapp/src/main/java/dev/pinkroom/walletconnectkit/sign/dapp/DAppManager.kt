@@ -18,6 +18,10 @@ import dev.pinkroom.walletconnectkit.core.chains.toJson
 import dev.pinkroom.walletconnectkit.core.data.Account
 import dev.pinkroom.walletconnectkit.core.initializeCoreClient
 import dev.pinkroom.walletconnectkit.core.sessions
+import dev.pinkroom.walletconnectkit.sign.dapp.data.model.PairingMetadata
+import dev.pinkroom.walletconnectkit.sign.dapp.data.model.Wallet
+import dev.pinkroom.walletconnectkit.sign.dapp.data.repository.PreferencesRepository
+import dev.pinkroom.walletconnectkit.sign.dapp.data.repository.WalletRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -31,12 +35,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.net.URLEncoder
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
 
 internal class DAppManager(
     private val context: Context,
-    private val config: WalletConnectKitConfig,
+    config: WalletConnectKitConfig,
+    private val walletRepository: WalletRepository,
+    private val preferencesRepository: PreferencesRepository,
 ) : DAppApi {
 
     override val events: SharedFlow<Sign.Model?> by lazy { DAppDelegate.events }
@@ -68,42 +75,37 @@ internal class DAppManager(
         setSelectedAccount()
     }
 
-    private fun setSelectedAccount() {
-        activeAccount = sessions.firstOrNull()?.accounts?.firstOrNull()
-        scope.launch {
-            events.filter { it is Sign.Model.ApprovedSession }
-                .map { it as Sign.Model.ApprovedSession }
-                .collect { activeAccount = it.approvedAccounts.firstOrNull() }
-        }
-    }
-
     override suspend fun connect(
         chains: List<Chain>,
         optionalChains: List<Chain>,
+        wallet: Wallet?,
         onSuccess: () -> Unit,
         onError: (Throwable) -> Unit,
     ) {
         withContext(Dispatchers.IO) {
             runCatching {
                 val pairing = CoreClient.Pairing.create { error -> throw error.throwable }
-                    ?.copy(peerAppMetaData = config.metadata)
                     ?: throw Throwable("Null Pairing Error")
                 connectToWallet(
                     chains = chains,
                     optionalChains = optionalChains,
                     pairing = pairing,
                     onProposedSequence = { uri ->
-                        navigateToWallet(uri)
-                        onSuccess()
+                        val finalUri = wallet?.nativeLink?.let {
+                            "${it}wc?uri=${uri.encodeUri()}"
+                        } ?: uri
+                        navigateToWallet(finalUri)
                     },
                     onConnectError = { error -> throw error.throwable },
                 )
-            }.onSuccess { onSuccess() }
-                .onFailure { e -> onError(e) }
+                waitForSessionApproval()
+                storePairingWithMetadata(wallet)
+                onSuccess()
+            }.onFailure(onError)
         }
     }
 
-    override fun connectExistingPair(
+    override fun connectExistingPairing(
         chains: List<Chain>,
         optionalChains: List<Chain>,
         pairing: Core.Model.Pairing,
@@ -114,10 +116,13 @@ internal class DAppManager(
         optionalChains = optionalChains,
         pairing = pairing,
         onProposedSequence = { uri ->
-            var redirect = pairing.peerAppMetaData?.redirect
-            if (pairing.peerAppMetaData?.redirect?.startsWith("trust://") == true) redirect =
-                pairing.peerAppMetaData?.redirect + "wc?uri=" + uri
-            navigateToWallet(redirect)
+            val wallet = preferencesRepository.pairingsWithMetadata.firstOrNull {
+                it.pairing.topic == pairing.topic
+            }?.wallet
+            val finalUri = wallet?.nativeLink?.let {
+                "${it}wc?uri=${uri.encodeUri()}"
+            } ?: uri
+            navigateToWallet(finalUri)
             onSuccess()
         },
         onConnectError = { error -> onError(error.throwable) },
@@ -187,6 +192,9 @@ internal class DAppManager(
         return waitForResponse(requestId)
     }
 
+    override suspend fun getInstalledWallets(chains: List<String>) =
+        walletRepository.getWalletsInstalled(chains)
+
     private fun connectToWallet(
         chains: List<Chain>,
         optionalChains: List<Chain>,
@@ -222,6 +230,19 @@ internal class DAppManager(
         )
     }
 
+    override suspend fun getPairingsWithMetadata(chains: List<String>): List<PairingMetadata> {
+        val installedWallets = walletRepository.getWalletsInstalled(chains).map { it.packageName }
+        val pairingTopics = pairings.map { it.topic }
+        preferencesRepository.pairingsWithMetadata =
+            preferencesRepository.pairingsWithMetadata.filter {
+                pairingTopics.contains(it.pairing.topic)
+            }
+        return preferencesRepository.pairingsWithMetadata.filter {
+            val packageName = it.wallet?.packageName
+            packageName == null || installedWallets.contains(packageName)
+        }
+    }
+
     private fun navigateToWallet(uri: String?) {
         runCatching {
             val deeplinkPairingUri = uri ?: "wc://"
@@ -252,5 +273,27 @@ internal class DAppManager(
             is Sign.Model.JsonRpcResponse.JsonRpcResult -> Result.success(result.result)
             is Sign.Model.JsonRpcResponse.JsonRpcError -> Result.failure(Throwable(result.toString()))
         }
+    }
+
+    private suspend fun waitForSessionApproval(): Result<Unit> {
+        val response = events.firstOrNull { it is Sign.Model.ApprovedSession }
+        if (response != null) return Result.success(Unit)
+        return Result.failure(Throwable("Something went wrong!"))
+    }
+
+    private fun String.encodeUri() = URLEncoder.encode(this, "UTF-8")
+
+    private fun setSelectedAccount() {
+        activeAccount = sessions.firstOrNull()?.accounts?.firstOrNull()
+        scope.launch {
+            events.filter { it is Sign.Model.ApprovedSession }
+                .map { it as Sign.Model.ApprovedSession }
+                .collect { activeAccount = it.approvedAccounts.firstOrNull() }
+        }
+    }
+
+    private fun storePairingWithMetadata(wallet: Wallet?) {
+        preferencesRepository.pairingsWithMetadata = preferencesRepository.pairingsWithMetadata +
+                PairingMetadata(pairings.last(), wallet)
     }
 }

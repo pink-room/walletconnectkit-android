@@ -1,5 +1,6 @@
 package dev.pinkroom.walletconnectkit.sign.dapp.sample.main
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,6 +10,7 @@ import androidx.compose.material.ExposedDropdownMenuBox
 import androidx.compose.material.ExposedDropdownMenuDefaults
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,16 +37,21 @@ fun <T> DropdownMenu(
         onExpandedChange = { expanded = !expanded },
     ) {
         TextField(
-            modifier = Modifier.wrapContentHeight().padding(2.dp),
+            modifier = Modifier
+                .wrapContentHeight()
+                .padding(2.dp),
             value = selectedItem.first.middleOverflow(),
             shape = RoundedCornerShape(8.dp),
             onValueChange = {},
             readOnly = true,
+            singleLine = true,
             leadingIcon = leadingIcon,
             trailingIcon = {
                 if (items.size > 1) ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
             colors = TextFieldDefaults.textFieldColors(
+                textColor = MaterialTheme.colorScheme.onBackground,
+                trailingIconColor = MaterialTheme.colorScheme.onBackground,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
@@ -52,6 +59,7 @@ fun <T> DropdownMenu(
         )
         if (items.size > 1) {
             ExposedDropdownMenu(
+                modifier = Modifier.background(MaterialTheme.colorScheme.background),
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
             ) {

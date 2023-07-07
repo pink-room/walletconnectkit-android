@@ -16,7 +16,7 @@ plugins {
 
 ext {
     PUBLISH_GROUP_ID = 'dev.pinkroom.walletconnectkit'
-    PUBLISH_VERSION = '2.0.0-alpha01'
+    PUBLISH_VERSION = '2.0.0-alpha02'
 }
 
 task clean(type: Delete) {

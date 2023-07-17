@@ -34,7 +34,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val config = WalletConnectKitConfig(projectId = BuildConfig.PROJECT_ID)
+        val config = WalletConnectKitConfig(
+            projectId = BuildConfig.PROJECT_ID,
+            appUrl = "https://pinkroom.dev",
+        )
         walletConnectKit = WalletConnectKit.builder(this).config(config).build()
         setContent {
             WalletConnectKitTheme {

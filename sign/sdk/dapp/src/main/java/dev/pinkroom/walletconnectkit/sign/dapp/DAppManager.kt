@@ -247,6 +247,7 @@ internal class DAppManager(
         runCatching {
             val deeplinkPairingUri = uri ?: "wc://"
             val intent = Intent(Intent.ACTION_VIEW, deeplinkPairingUri.toUri()).apply {
+                addCategory(Intent.CATEGORY_BROWSABLE)
                 flags = FLAG_ACTIVITY_NEW_TASK
             }
             context.startActivity(intent)
@@ -258,7 +259,12 @@ internal class DAppManager(
             SignClient.request(
                 request = this,
                 onSuccess = { sentRequest: Sign.Model.SentRequest ->
-                    navigateToWallet(SignClient.getActiveSessionByTopic(sessionTopic)?.redirect)
+                    val session = SignClient.getActiveSessionByTopic(sessionTopic)
+                    val wallet = preferencesRepository.pairingsWithMetadata.firstOrNull {
+                        it.pairing.topic == session?.pairingTopic
+                    }?.wallet
+                    val uri = session?.redirect ?: wallet?.nativeLink
+                    navigateToWallet(uri)
                     continuation.resume(Result.success(sentRequest))
                 },
                 onError = { continuation.resume(Result.failure(it.throwable)) },

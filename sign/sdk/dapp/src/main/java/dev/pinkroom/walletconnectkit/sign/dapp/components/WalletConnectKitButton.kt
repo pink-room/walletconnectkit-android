@@ -276,7 +276,7 @@ private fun SelectWallet(wallets: List<Wallet>?, onWalletClick: (Wallet?) -> Uni
             columns = GridCells.Fixed(4),
         ) {
             if (wallets == null) {
-                items(4) { LoadingItem() }
+                items(4) { LoadingItem(it) }
             } else if (wallets.isNotEmpty()) {
                 if (showAll) {
                     items(wallets) { wallet -> WalletListItem(wallet, onWalletClick) }
@@ -319,9 +319,7 @@ private fun SelectPairings(
             columns = GridCells.Fixed(4),
         ) {
             if (pairingsMetadata.isEmpty()) {
-                items(4) {
-                    LoadingItem()
-                }
+                items(4) { LoadingItem(it) }
             } else {
                 items(pairingsMetadata) { pairingMetadata ->
                     PairingListItem(pairingMetadata, onPairingClick)
@@ -507,11 +505,11 @@ private fun SeeAllItem(onClick: () -> Unit) {
 }
 
 @Composable
-private fun LoadingItem() {
+private fun LoadingItem(count: Int = 0) {
     val backgroundColor = if (isSystemInDarkTheme()) {
-        Color.DarkGray.copy(0.4f)
+        Color.DarkGray.copy(0.4f - count * 0.05f)
     } else {
-        Color.LightGray.copy(0.3f)
+        Color.LightGray.copy(0.3f - count * 0.05f)
     }
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Box(

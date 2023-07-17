@@ -263,7 +263,7 @@ internal class DAppManager(
                     val wallet = preferencesRepository.pairingsWithMetadata.firstOrNull {
                         it.pairing.topic == session?.pairingTopic
                     }?.wallet
-                    val uri = wallet?.nativeLink ?: session?.redirect
+                    val uri = session?.redirect ?: wallet?.nativeLink
                     navigateToWallet(uri)
                     continuation.resume(Result.success(sentRequest))
                 },

@@ -1,4 +1,4 @@
-# WalletConnectKit
+![wckit_banner](https://github.com/pink-room/walletconnectkit-android/assets/2984462/f9d14bfc-52b5-436d-8a3c-76c0d7c6cc11)
 
 `WalletConnectKit` is the Swiss Army toolkit for `WalletConnect`. It will allow you to connect your
 DApp with a Wallet in a few minutes and start performing method calls right away.

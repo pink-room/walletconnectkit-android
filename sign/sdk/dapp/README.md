@@ -20,7 +20,7 @@ The SDK that simplifies the integration of the
 
 ## Demo
 
-https://github.com/pink-room/walletconnectkit-android/assets/2984462/d37f70c2-d227-4f7e-a789-f562b5dfc260
+https://github.com/pink-room/walletconnectkit-android/assets/2984462/68dda9fc-5f59-41dc-b41c-e849981037aa
 
 ## Installation
 
